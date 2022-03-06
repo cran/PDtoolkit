@@ -101,8 +101,8 @@ rf.clustering <- function(db, metric, k = NA) {
 		clusters <- cutree(clust, k = min.g:max.g)
 		k <- automatic.elbow(distance = distance, clusters = clusters)
 		} else {
-		k <- ifelse(k > 30, 30, k)
-		k <- ifelse(k > db.ncol, db.ncol, k)	
+		k <- ifelse(k > 100, 100, k)
+		k <- ifelse(k > db.ncol, db.ncol - 1, k)	
 		}
 	distance <- as.matrix(distance)
 	distance <- cbind.data.frame(rf = row.names(distance), distance)
@@ -145,14 +145,22 @@ x2y.inner <- function(x, y) {
 	if	(length(unique(x)) == 1 | length(unique(y)) == 1) {
     		return(NA)
 		} 
+	min.leaf <- round(0.1 * length(y)) 
+	min.leaf <- ifelse(min.leaf < 30, 30, min.leaf)
 	#if y is continuous
 	if	(is.numeric(y)) {
-		preds <- predict(rpart(y ~ x, method = "anova"), type = "vector")
+		preds <- predict(rpart(y ~ x, method = "anova",
+					    control = rpart.control(minsplit = min.leaf,
+									    minbucket = min.leaf)), 
+				     type = "vector")
 		calc.mae.reduction(y.hat = preds, y.actual = y)
 		}
 	#if y is categorical
 		else {
-		preds <- predict(rpart(y ~ x, method = "class"), type = "class")
+		preds <- predict(rpart(y ~ x, method = "class",
+					    control = rpart.control(minsplit = min.leaf,
+									    minbucket = min.leaf)), 
+				     type = "class")
 		calc.misclass.reduction(y.hat = preds, y.actual = y)
 		}
 }

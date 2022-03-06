@@ -1,21 +1,23 @@
 #' Stepwise logistic regression based on marginal information value (MIV)
 #'
 #' \code{stepMIV} performs stepwise logistic regression based on MIV.
-#'@param start.model Formula class that represent starting model. If can include some risk factors, but it can be
+#'@param start.model Formula class that represent starting model. It can include some risk factors, but it can be
 #'			   defined only with intercept (\code{y ~ 1} where \code{y} is target variable).
-#'@param miv.threshold MIV entrance threshold. Only the risk factors with MIV higher than thresholds are candidate
+#'@param miv.threshold MIV entrance threshold. Only the risk factors with MIV higher than the threshold are candidate
 #'			     for the new model. Additional criteria is that MIV value should significantly separate
 #'			     good from bad cases measured by marginal chi-square test. 
 #'@param m.ch.p.val Significance level of p-value for marginal chi-square test. This test additionally supports MIV value of 
-#'		        of candidate risk factor for final decision.
+#'		     candidate risk factor for final decision.
 #'@param coding Type of risk factor coding within the model. Available options are: \code{"WoE"} and
 #'		    \code{"dummy"}. If \code{"WoE"} is selected, then modalities of the risk factors are replaced
 #'		    by WoE values, while for \code{"dummy"} option dummies (0/1) will be created for \code{n-1} 
 #'		    modalities where \code{n} is total number of modalities of analyzed risk factor.
 #'@param coding.start.model Logical (\code{TRUE} or \code{FALSE}), if risk factors from the starting model should be WoE coded. 
 #'				    It will have an impact only for WoE coding option. Default value is \code{FALSE}.
-#'@param db Modeling data with risk factors and target variable. All risk factors should be categorized and as of
+#'@param db Modeling data with risk factors and target variable. All risk factors should be categorized as of
 #'		character type.
+#'@param offset.vals This can be used to specify an a priori known component to be included in the linear predictor during fitting. 
+#'		    	   This should be \code{NULL} or a numeric vector of length equal to the number of cases. Default is \code{NULL}.
 #'@return The command \code{stepMIV} returns a list of five objects.\cr
 #'	    The first object (\code{model}), is the final model, an object of class inheriting from \code{"glm"}.\cr
 #'	    The second object (\code{steps}), is the data frame with risk factors selected at each iteration.\cr
@@ -24,9 +26,7 @@
 #'	    The warnings refer to the following checks: if risk factor has more than 10 modalities,
 #'	    if any of the bins (groups) has less than 5% of observations and 
 #'	    if there are problems with WoE calculations.\cr
-#'	    The final, fifth, object \code{dev.db} is returned only is \code{coding} is selected as \code{"WoE"}. 
-#'	    In that case data frame with replaced WoE values for risk factors that are selected in the 
-#'	    final model with be returned.
+#'	    The final, fifth, object \code{dev.db} object \code{dev.db} returns the model development database.
 #'@references 
 #'Scallan, G. (2011). Class(ic) Scorecards: Selecting Characteristics and Attributes in Logistic Regression,  
 #'			    Edinburgh Credit Scoring Conference, downloaded from 
@@ -68,7 +68,7 @@
 #'@import monobin
 #'@importFrom stats formula
 #'@export
-stepMIV <- function(start.model, miv.threshold, m.ch.p.val, coding, coding.start.model = FALSE, db) {
+stepMIV <- function(start.model, miv.threshold, m.ch.p.val, coding, coding.start.model = FALSE, db, offset.vals = NULL) {
 	#check arguments
 	if	(!is.data.frame(db)) {
 		stop("db is not a data frame.")
@@ -136,7 +136,7 @@ stepMIV <- function(start.model, miv.threshold, m.ch.p.val, coding, coding.start
 		woe.o <- cbind.data.frame(rf = rf.rest.l, woe.o)
 		pct.check <- any(woe.o$pct.o < 0.05)
 		woe.o$pct.check <- pct.check
-		woe.o$woe.check <- any(woe.o$woe%in%c(NA, NaN, Inf)) 
+		woe.o$woe.check <- any(woe.o$woe%in%c(NA, NaN, Inf, -Inf)) 
 		rf.woe.o[[i]] <- woe.o
 		}
 	rf.woe.o <- bind_rows(rf.woe.o)
@@ -149,7 +149,7 @@ stepMIV <- function(start.model, miv.threshold, m.ch.p.val, coding, coding.start
 	#check WoE calc
 	check.woe <- unique(rf.woe.o$rf[rf.woe.o$woe.check]) 
 	if	(length(check.woe) > 0) {
-		msg <- "Problem with WoE calculation (NA, NaN, Inf)."
+		msg <- "Problem with WoE calculation (NA, NaN, Inf, -Inf)."
 		msg <- paste0(msg, " Risk factor is excluded from further process.")
 		warn.rep <- data.frame(rf = check.woe, comment = msg)
 		warn.tbl <- bind_rows(warn.tbl, warn.rep)
@@ -170,6 +170,9 @@ stepMIV <- function(start.model, miv.threshold, m.ch.p.val, coding, coding.start
 			}
 		}
 	#miv calculation
+	if	(!is.null(offset.vals)) {
+		db <- cbind.data.frame(db, offset.vals = offset.vals)
+		}
 	steps <- data.frame()
 	miv.iter.tbl <- data.frame()
 	mod.frm <- start.model
@@ -183,7 +186,8 @@ stepMIV <- function(start.model, miv.threshold, m.ch.p.val, coding, coding.start
 		for	(i in 1:rf.restl) {
 			rf.l <- rf.rest[i]
 			woe.o.l <- rf.woe.o[rf.woe.o$rf%in%rf.l, ]
-			miv.res <- miv(model.formula = mod.frm, rf.new = rf.l, db = db, woe.o = woe.o.l)
+			miv.res <- miv(model.formula = as.formula(mod.frm), rf.new = rf.l, db = db, 
+					   woe.o = woe.o.l, offset.vals = offset.vals)
 			miv.iter[[i]] <- miv.res[[1]]
 			miv.tbl[[i]] <- miv.res[[2]]
 			}
@@ -212,20 +216,26 @@ stepMIV <- function(start.model, miv.threshold, m.ch.p.val, coding, coding.start
 			}
 		iter <- iter + 1	
 		}
-	lr.mod <- glm(formula = mod.frm, family = "binomial", data = db)
+	if	(is.null(offset.vals)) {
+		lr.mod <- glm(formula = as.formula(mod.frm), family = "binomial", data = db)
+		} else {
+		lr.mod <- glm(formula = as.formula(mod.frm), family = "binomial", data = db, offset = offset.vals)
+		}
 	if	(nrow(steps) > 0) {steps <- cbind.data.frame(target = target, steps)}
 	res <- list(model = lr.mod, 
 			steps = steps, 
 			miv.iter = miv.iter.tbl, 
 			warnings = if (nrow(warn.tbl) > 0) {warn.tbl} else {data.frame(comment = "There are no warnings.")}, 
-			dev.db = if	(coding%in%"WoE") {db} else {data.frame()}
-			)
+			dev.db = db)
 return(res)	
 }
-
-miv <- function(model.formula, rf.new, db, woe.o = NULL) {		
-	model.c <- glm(formula = model.formula, family = "binomial", data = db)
-	model.p <- unname(predict(model.c, newdata = db, type = "response")) 
+miv <- function(model.formula, rf.new, db, woe.o = NULL, offset.vals) {	
+	if	(is.null(offset.vals)) {	
+		model.c <- glm(formula = model.formula, family = "binomial", data = db) 
+		} else {
+		model.c <- glm(formula = model.formula, family = "binomial", data = db, offset = offset.vals)
+		} 
+	model.p <- unname(predict(model.c, newdata = db, type = "response"))
 	db$pred <- model.p
 	db <- db[!is.na(db$pred), ]
 	if	(is.null(woe.o)) {
@@ -263,7 +273,6 @@ miv <- function(model.formula, rf.new, db, woe.o = NULL) {
 	res$p.val <- ifelse(is.nan(res$miv) | is.infinite(res$miv), 1, res$p.val)
 return(list(res, res.tbl))
 }
-
 replace.woe.aux <- function(x, woe.tbl) {
 	woe.val <- woe.tbl$woe
 	names(woe.val) <- woe.tbl$bin	

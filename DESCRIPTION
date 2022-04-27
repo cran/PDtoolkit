@@ -1,7 +1,7 @@
 Package: PDtoolkit
 Title: Collection of Tools for PD Rating Model Development and
         Validation
-Version: 0.2.0
+Version: 0.3.0
 Authors@R: 
     person(given = "Andrija",
            family = "Djurovic",
@@ -24,7 +24,7 @@ RoxygenNote: 7.1.1
 Depends: monobin, R (>= 2.10)
 Imports: dplyr, rpart
 NeedsCompilation: no
-Packaged: 2022-03-06 08:43:00 UTC; adjurovic
+Packaged: 2022-04-27 18:46:26 UTC; adjurovic
 Author: Andrija Djurovic [aut, cre]
 Repository: CRAN
-Date/Publication: 2022-03-06 10:40:02 UTC
+Date/Publication: 2022-04-27 19:00:04 UTC

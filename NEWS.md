@@ -22,3 +22,9 @@ up the algorithm. <br/>
 Changes:<br/>
 
 1. Package is extended with a new functions: ```stepFWD``` and ```stepRPC```.
+
+# PDtoolkit 0.4.0
+Changes:<br/>
+
+1. Package is extended with a new functions: ```staged.blocks```, ```embeded.blocks``` and ```ensemble.blocks```.
+2. Fixed bug in ```create.partitions``` function - risk factors with more than 10 modalities. 

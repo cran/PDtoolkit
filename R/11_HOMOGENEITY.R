@@ -61,8 +61,6 @@
 #'		alpha = 0.05)
 #'@importFrom stats prop.test complete.cases
 #'@export
-
-
 homogeneity <- function(app.port, def.ind, rating, segment, segment.num, alpha = 0.05) {
 	if	(!is.data.frame(app.port)) {
 		stop("app.port is not a data frame.")
@@ -86,6 +84,9 @@ homogeneity <- function(app.port, def.ind, rating, segment, segment.num, alpha =
 	if	(any(!cc)) {
 		warning("There are some incomplete cases. Check def.ind, rating and segment columns.")
 		}
+	if	(length(segment) > 1) {
+		stop("segment argument has to be of length one.")
+		}
 	seg <- app.port[, segment]
 	if	(is.numeric(seg)) {
 		seg.ul <- length(unique(seg))
@@ -100,9 +101,9 @@ homogeneity <- function(app.port, def.ind, rating, segment, segment.num, alpha =
 	ru.l <- length(rat.unique)
 	res <- vector("list", ru.l)
 	for	(i in 1:ru.l) {
-		rat.g = ratings[ratings%in%rat.unique[i]] 
-		def = defaults[ratings%in%rat.unique[i]]
-		rat.s = seg[ratings%in%rat.unique[i]]
+		rat.g <- ratings[ratings%in%rat.unique[i]] 
+		def <- defaults[ratings%in%rat.unique[i]]
+		rat.s <- seg[ratings%in%rat.unique[i]]
 		res[[i]] <- t2p(rat.g = rat.g, def = def, rat.s = rat.s, alpha = alpha)
 		}
 	res <- bind_rows(res)
@@ -130,7 +131,6 @@ t2p <- function(rat.g, def, rat.s, alpha) {
 			com <- ifelse(p.val >= alpha,
 				        paste0("H0: DR(", su.l, ") =="," DR(rest)"),
 					  paste0("H1: DR(", su.l, ") !="," DR(rest)"))
-
 			}
 		res.l <- data.frame(rating = unique(rat.g), segment.mod = su.l, no = length(def), nb = sum(def), 
 					  no.segment = no1, no.rest = no2,

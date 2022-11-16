@@ -69,7 +69,7 @@
 #'@importFrom graphics boxplot
 #'@importFrom stats quantile sd
 #'@export
-univariate <- function(db, sc = c(NA, NaN, Inf), sc.method = "together", sc.threshold = 0.2) {
+univariate <- function(db, sc = c(NA, NaN, Inf, -Inf), sc.method = "together", sc.threshold = 0.2) {
 	if	(!is.data.frame(db)) {
 		stop("db is not a data frame.")
 		}
@@ -94,9 +94,11 @@ univariate <- function(db, sc = c(NA, NaN, Inf), sc.method = "together", sc.thre
 					ordered = TRUE)
 		if	(is.numeric(db[, var.l])) {
 			res[[i]] <- univariate.num(db = db, x = var.l, sc.threshold = sc.threshold) 
+			res[[i]]$bin <- as.character(res[[i]]$bin)
 			} 
 		if	(is.character(db[, var.l]) | is.factor(db[, var.l]) | is.logical(db[, var.l])) {
 			res[[i]] <- univariate.cat(db = db, x = var.l, sc.threshold = sc.threshold) 
+			res[[i]]$bin <- as.character(res[[i]]$bin)
 			}
 		}
 	res <- data.frame(bind_rows(res))
@@ -144,9 +146,7 @@ univariate.cat <- function(db, x, sc.threshold = sc.threshold) {
 				  funs(
 				  cnt = n(),
 				  pct = n() / nrow(db),
-				  cnt.unique = length(unique(.)),
-				  neg = sum(. < 0),
-				  pos = sum(. > 0)
+				  cnt.unique = length(unique(.))
 				  )) %>%
 		 ungroup() %>%
 		 mutate(sc.ind = ifelse(sum(pct[bin.type%in%"special cases"]) > sc.threshold, 
@@ -191,7 +191,7 @@ return(res)
 #'imput.res[[2]]
 #'@import monobin
 #'@export
-imp.sc <- function(db, sc.all = c(NA, NaN, Inf), sc.replace = c(NA, NaN, Inf), 
+imp.sc <- function(db, sc.all = c(NA, NaN, Inf, -Inf), sc.replace = c(NA, NaN, Inf, -Inf), 
 			    method.num = "automatic", p.val = 0.05) {
 	if	(!is.data.frame(db)) {
 		stop("db is not a data frame.")
@@ -236,7 +236,7 @@ imp.sc <- function(db, sc.all = c(NA, NaN, Inf), sc.replace = c(NA, NaN, Inf),
 				auto.algo <- ifelse(dist.check < p.val, "median", "mean")
 				}
 			rf.imp.val <- eval(parse(text = eval.exp))
-			if	(rf.imp.val%in%c(NA, Inf, NaN)) {
+			if	(rf.imp.val%in%c(NA, Inf, NaN, -Inf)) {
 				report[[i]] <- data.frame(rf = rf.l, 
 							  	  info = "Imputed value cannot be calculated.", 
 							  	  imputation.method = method.num)
@@ -259,7 +259,7 @@ imp.sc <- function(db, sc.all = c(NA, NaN, Inf), sc.replace = c(NA, NaN, Inf),
 			} else {
 			eval.exp <- "names(which.max(table(rf.imp[!rf.imp%in%sc.all])))"
 			rf.mode <- eval(parse(text = eval.exp))
-			if	(rf.mode%in%c(NA, Inf, NaN)) {
+			if	(rf.mode%in%c(NA, Inf, NaN, -Inf)) {
 				report[[i]] <- data.frame(rf = rf.l, 
 							  	  info = "Imputed value (mode) cannot be calculated.", 
 							  	  imputation.method = "mode")
@@ -346,7 +346,7 @@ return(res)
 #'@importFrom graphics boxplot
 #'@importFrom stats quantile
 #'@export
-imp.outliers <- function(db, sc = c(NA, NaN, Inf), method = "iqr", range = 1.5, 
+imp.outliers <- function(db, sc = c(NA, NaN, Inf, -Inf), method = "iqr", range = 1.5, 
 			    upper.pct = 0.95, lower.pct = 0.05) {
 	if	(!is.data.frame(db)) {
 		stop("db is not a data frame.")

@@ -28,3 +28,28 @@ Changes:<br/>
 
 1. Package is extended with a new functions: ```staged.blocks```, ```embeded.blocks``` and ```ensemble.blocks```.
 2. Fixed bug in ```create.partitions``` function - risk factors with more than 10 modalities. 
+
+# PDtoolkit 1.0.0
+Changes:<br/>
+
+1. ```psi**``` value added to the output of ```psi``` function (for comparison with ```cv.chisq``` critical value)
+2. Improvement of ```cat.bin``` output consistency for ```sc.merge``` option 
+3. Additional check of ```segment```argument in ```homogeneity``` function (has to be of length one)
+4. Function ```segment.vld``` parameterized with the new argument ```min.leaf```
+5. Additional condition considered for selection of next entry in ```stepFWD``` (now AIC value can be possibly considered in the selection process)
+6. Bug fix in ```interaction.transformer``` function - identification of upper bound for partitioning
+7. Argument ```sc``` in the functions of univariate analysis extended for ```-Inf``` value 
+8. New functions:
+      + helpers functions: ```num.slice```, ```cat.slice``` and ```encode.woe```
+      + ```nzv``` - near-zero variance
+      + ```smote``` - Synthetic Minority Oversampling Technique
+      + ```constrained.logit``` - constrained logistic regression
+      + ```rf.interaction.transformer``` - extract interactions from random forest
+      + ```hhi``` - Herfindahl-Hirschman Index
+      + ```normal.test``` - Multi-period predictive power test
+      + ```confusion.matrix``` and ```cutoff.palette``` - confusion matrix analysis
+      + ```ush.test``` and ```ush.bin``` - U-shape testing and binning procedures
+      + ```kfold.idx``` - indices for K-fold validation
+      + ```fairness.vld``` - model fairness validation
+      + ```decision.tree``` - custom decision tree algorithm and its ```predict``` method
+

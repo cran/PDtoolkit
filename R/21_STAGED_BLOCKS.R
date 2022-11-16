@@ -74,7 +74,7 @@ staged.blocks <- function(method, target, db, coding = "WoE", blocks,
 	if	(!method%in%method.opt) {
 		stop(paste0("method argument has to be one of: ", paste0(method.opt, collapse = ', '), "."))
 		}
-		if	(!all(c("rf", "block")%in%names(blocks))) {
+	if	(!all(c("rf", "block")%in%names(blocks))) {
 		stop("blocks data frame has to contain columns: rf and block.")
 		}
 	if	(!all(blocks$rf%in%names(db))) {
@@ -131,6 +131,7 @@ staged.blocks <- function(method, target, db, coding = "WoE", blocks,
 		bid.l <- bid[i]
 		rf.b <- blocks$rf[blocks$block%in%bid.l]
 		res.l <- eval(parse(text = eval.exp))
+		if	(nrow(res.l$steps) == 0) {next}
 		steps[[i]] <- cbind.data.frame(block = i, res.l$steps)
 		models[[i]] <- res.l$model
 		names(models)[i] <- paste0("block_", i)

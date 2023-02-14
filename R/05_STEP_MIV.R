@@ -34,22 +34,26 @@
 #'@examples
 #'suppressMessages(library(PDtoolkit))
 #'data(loans)
-#'#identify numeric risk factors
-#'num.rf <- sapply(loans, is.numeric)
-#'num.rf <- names(num.rf)[!names(num.rf)%in%"Creditability" & num.rf]
-#'#discretized numeric risk factors using ndr.bin from monobin package
-#'loans[, num.rf] <- sapply(num.rf, function(x) 
-#'	ndr.bin(x = loans[, x], y = loans[, "Creditability"])[[2]])
-#'str(loans)
+#'##identify numeric risk factors
+#'#num.rf <- sapply(loans, is.numeric)
+#'#num.rf <- names(num.rf)[!names(num.rf)%in%"Creditability" & num.rf]
+#'##discretized numeric risk factors using ndr.bin from monobin package
+#'#loans[, num.rf] <- sapply(num.rf, function(x) 
+#'#	ndr.bin(x = loans[, x], y = loans[, "Creditability"])[[2]])
+#'#str(loans)
 #'#run stepMIV
+#'rf <- c("Account Balance", "Payment Status of Previous Credit", "Purpose",
+#'        "Value Savings/Stocks", "Most valuable available asset", "Foreign Worker")
 #'res <- stepMIV(start.model = Creditability ~ 1, 
 #'		   miv.threshold = 0.02, 
 #'		   m.ch.p.val = 0.05,
 #'		   coding = "WoE",
 #'		   coding.start.model = FALSE,
-#'		   db = loans)
+#'		   db = loans[, c("Creditability", rf)])
 #'#check output elements
 #'names(res)
+#'#print model warnings
+#'res$warnings
 #'#extract the final model
 #'final.model <- res$model
 #'#print coefficients
@@ -178,7 +182,7 @@ stepMIV <- function(start.model, miv.threshold, m.ch.p.val, coding, coding.start
 	mod.frm <- start.model
 	iter <- 1
 	repeat {
-		print(paste0("Running iteration: ", iter))
+		message(paste0("Running iteration: ", iter))
 		rf.restl <- length(rf.rest)
 		if	(rf.restl == 0) {break}
 		miv.iter <- vector("list", rf.restl)

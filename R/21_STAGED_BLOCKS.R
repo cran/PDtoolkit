@@ -46,8 +46,8 @@
 #'blocks <- data.frame(rf = rf.all, block = sample(1:3, length(rf.all), rep = TRUE))
 #'blocks <- blocks[order(blocks$block), ]
 #'blocks
-#'#method: stepMIV
-#'res <- staged.blocks(method = "stepMIV", 
+#'#method: stepFWD
+#'res <- staged.blocks(method = "stepFWD", 
 #'			   target = "Creditability",
 #'			   db = loans,
 #'			   coding = "WoE",  
@@ -127,7 +127,7 @@ staged.blocks <- function(method, target, db, coding = "WoE", blocks,
 	models <- vector("list", bidl)
 	dev.db <- vector("list", bidl)
 	for	(i in 1:bidl) {
-		print(paste0("-------Block: ", i, "-------"))
+		message(paste0("-------Block: ", i, "-------"))
 		bid.l <- bid[i]
 		rf.b <- blocks$rf[blocks$block%in%bid.l]
 		res.l <- eval(parse(text = eval.exp))

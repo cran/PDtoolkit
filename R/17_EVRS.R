@@ -35,17 +35,17 @@
 #'num.rf <- names(num.rf)[!names(num.rf)%in%"Creditability" & num.rf]
 #'loans[, num.rf] <- sapply(num.rf, function(x) 
 #'				  ndr.bin(x = loans[, x], y = loans[, "Creditability"])[[2]])
-#'#bin all risk factors on max number of groups, pct of observations and defaults
-#'cat.rf <- names(loans)[!names(loans)%in%"Creditability"]
-#'loans[, cat.rf] <- sapply(cat.rf, function(x) 
-#'               			    cat.bin(x = loans[, x], 
-#'                   		    y = loans[, "Creditability"],
-#'                     		    sc = c("SC", NA),
-#'                    		    sc.merge = "closest",
-#'                     		    min.pct.obs = 0.05, 
-#'                     		    min.avg.rate = 0.01,
-#'                     		    max.groups = 5, 
-#'                     		    force.trend = "dr")[[2]])
+#'##bin all risk factors on max number of groups, pct of observations and defaults
+#'#cat.rf <- names(loans)[!names(loans)%in%"Creditability"]
+#'#loans[, cat.rf] <- sapply(cat.rf, function(x) 
+#'#               		    cat.bin(x = loans[, x], 
+#'#                   		    y = loans[, "Creditability"],
+#'#                     	    sc = c("SC", NA),
+#'#                    		    sc.merge = "closest",
+#'#                                 min.pct.obs = 0.05, 
+#'#                     	    min.avg.rate = 0.01,
+#'#                     	    max.groups = 5, 
+#'#                     	    force.trend = "dr")[[2]])
 #'loans.woe <- replace.woe(db = loans, target = "Creditability")[[1]]
 #'#estimate model
 #'miu.formula <- Creditability ~ `Account Balance` +`Age (years)` + `Duration of Credit (month)` +
@@ -58,8 +58,7 @@
 #'data(loans)
 #'#define risk factors that will be used for interactions
 #'rf.mat <- matrix(c(1, 2, 14, 2, 6, 7, 4, 5, 19, 1, 3, 14, 7, 8, 12,
-#'			 8, 13, 16, 4, 13, 14, 8, 11, 17, 6, 9, 11,
-#'			 4, 10, 11), nrow = 3, byrow = FALSE) 
+#'		 8, 13, 16, 4, 13, 14), nrow = 3, byrow = FALSE)  
 #'rf.l <- ncol(rf.mat)
 #'it <- data.frame(matrix(NA, ncol = rf.l, nrow = nrow(loans)))
 #'it <- cbind.data.frame(Creditability = loans$Creditability, it)
@@ -102,7 +101,6 @@
 #'res[["summary.tbl"]]
 #'#portfolio return increase in case of using benchmark model
 #'res[["summary.tbl"]][, "return.difference", drop = FALSE]
-#'res[["summary.tbl"]]$return.difference
 #'#summary of simulated returns
 #'summary(res[["return.sim"]])
 #'@importFrom stats rnorm

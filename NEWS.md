@@ -53,3 +53,8 @@ Changes:<br/>
       + ```fairness.vld``` - model fairness validation
       + ```decision.tree``` - custom decision tree algorithm and its ```predict``` method
 
+# PDtoolkit 1.0.1
+Changes:<br/>
+
+1. ```print``` from within the functions (```stepMIV```, ```stepFWD```, ```stepRPC```, ```staged.blocks```, ```embedded.blocks```, ```ensemble.blocks```) replaced with ```messsage```
+2. Examples modified (```stepMIV```, ```boots.vld```, ```segment.vld```, ```scaled.score```, ```kfold.vld```, ```fairness.vld```, ```evrs```, ```staged.blocks```) to keep the execution time under 10s during check_win_release() 

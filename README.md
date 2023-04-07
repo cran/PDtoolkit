@@ -1,5 +1,5 @@
 
-## PDtoolkit 1.0.1
+## PDtoolkit 1.1.0
 
 `PDtoolkit` provides collection of tools for probability of default (PD)
 rating model development and validation.</br> Keeping in mind the fact
@@ -613,7 +613,7 @@ handy if analyst wants to perform clustering before any binning
 procedures and to decrease the number of risk factors. More examples of
 the clustering can be found in help page `?rf.clustering`, while the
 details about `x2y` metric are presented in this
-[link](https://rama100.github.io/lecture-notes/x2y.nb.html).
+[link](https://rviews.rstudio.com/2021/04/15/an-alternative-to-the-correlation-coefficient-that-works-for-numeric-and-categorical-variables).
 
 Due to the fact that for this example we don’t have too many risk
 factors, we will not use the results of cluster analysis to shorten the
@@ -858,7 +858,7 @@ rs$pd <- rs.calibration(rs = rs,
                 w = "no", 
                 ct = 0.27, 
                 min.pd = 0.05,
-                method = "log.odds.ab")
+                method = "log.odds.ab")[[1]]
 rs
 ```
 

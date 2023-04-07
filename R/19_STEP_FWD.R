@@ -46,7 +46,7 @@
 #'		   db = loans)
 #'summary(res$model)$coefficients
 #'rf.check <- tapply(res$dev.db$Creditability, 
-#'			 res$dev.db$Value_Savings_Stocks, 
+#'			 res$dev.db$Instalment_per_cent, 
 #'			 mean)
 #'rf.check
 #'diff(rf.check)
@@ -107,6 +107,11 @@ stepFWD <- function(start.model, p.value = 0.05, coding = "WoE", coding.start.mo
 	target <- unname(names.c[target])
 	if	(!is.null(rf.start)) {rf.start <- unname(names.c[rf.start])}
 	rf.rest <- unname(names.c[rf.rest])
+	#check coding, start model and rf.start types
+	if	(check.start.model & coding%in%"dummy" & !is.null(rf.start)) {
+		num.type.start <- sapply(db[, rf.start, drop = FALSE], is.numeric)
+		if	(any(num.type.start)) {check.start.model <- FALSE}
+		}
 	#define warning table
 	warn.tbl <- data.frame()
 	#check num of modalities per risk factor
@@ -116,7 +121,7 @@ stepFWD <- function(start.model, p.value = 0.05, coding = "WoE", coding.start.mo
 		warn.rep <- data.frame(rf = check.mod, comment = "More than 10 modalities.")
 		warn.tbl <- bind_rows(warn.tbl, warn.rep)
 		}
-	#check for numeric risk factors (change the order of numeric check and num of modalities)
+	#check for numeric risk factors
 	num.type <- sapply(db[, rf.rest, drop = FALSE], is.numeric)
 	check.num <- names(num.type)[num.type ]
 	if	(length(check.num) > 0) {
@@ -323,10 +328,15 @@ return(list(p.val = pc[pcl], check.results = c.res))
 }
 cc.dummy <- function(dr, Estimate) {
 	cc.cases <- complete.cases(dr, Estimate)
+	if	(length(dr[is.na(Estimate)]) > 1) {return(FALSE)}
 	ref.dir <- dr - dr[is.na(Estimate)]
 	check.1 <- all(sign(ref.dir[cc.cases]) == sign(Estimate[cc.cases]))
-	est <- ifelse(is.na(Estimate), 0, Estimate)
-	check.2 <- all(sign(diff(dr)) == sign(diff(est)))
+	if	(sum(cc.cases) > 1) {
+		cc <- cor(Estimate, dr - dr[is.na(Estimate)], use = "complete.obs", method = "spearman")
+		check.2 <- ifelse(round(cc, 5) == 1, TRUE, FALSE)
+		} else {
+		check.2 <- TRUE
+		}
 	cc <- check.1 & check.2
 return(cc)
 }

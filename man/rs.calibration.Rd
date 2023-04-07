@@ -20,7 +20,8 @@ rs.calibration(rs, dr, w, ct, min.pd, method)
 \item{method}{Calibration method. Available options are \code{"scaling", "log.odds.a", "log.odds.ab"}.}
 }
 \value{
-The command \code{rs.calibration} returns a vector of calibrated PDs.
+The command \code{rs.calibration} returns a list of two elements. The first element is
+vector of calibrated PDs and the second one is dataframe of optimization parameters.
 }
 \description{
 \code{rs.calibration} performs calibration of the observed default rates for a given rating scale.
@@ -40,7 +41,7 @@ suppressMessages(library(PDtoolkit))
 data(loans)
 #estimate some dummy model
 mod.frm <- `Creditability` ~ `Account Balance` + `Duration of Credit (month)` +
-				`Age (years)`
+			`Age (years)`
 lr.mod <- glm(mod.frm, family = "binomial", data = loans)
 summary(lr.mod)$coefficients
 #model predictions
@@ -53,8 +54,8 @@ loans$rating <- sts.bin(x = round(loans$score), y = loans$Creditability, y.type 
 rs <- loans \%>\%
 group_by(rating) \%>\%
 summarise(no = n(),
-	    nb = sum(Creditability),
-	    ng = sum(1 - Creditability)) \%>\%
+    nb = sum(Creditability),
+    ng = sum(1 - Creditability)) \%>\%
 mutate(dr = nb / no)
 rs
 #calcualte portfolio default rate
@@ -62,24 +63,30 @@ sum(rs$dr * rs$no / sum(rs$no))
 #calibrate rating scale to central tendency of 27\% with minimum PD of 5\%
 ct <- 0.33
 min.pd <- 0.05
-rs$pd.scaling <- rs.calibration(rs = rs, 
-				  dr = "dr", 
-				  w = "no", 
-				  ct = ct, 
-				  min.pd = min.pd,
-				  method = "scaling")
-rs$pd.log.a <- rs.calibration(rs = rs, 
-				dr = "dr", 
-				w = "no", 
-				ct = ct, 
-				min.pd = min.pd,
-				method = "log.odds.a")
-rs$pd.log.ab <- rs.calibration(rs = rs, 
-				 dr = "dr", 
-				 w = "no", 
-				 ct = ct, 
-				 min.pd = min.pd,
-				 method = "log.odds.ab")
+#scaling
+pd.calib.s <- rs.calibration(rs = rs, 
+			     dr = "dr", 
+			     w = "no", 
+			     ct = ct, 
+			     min.pd = min.pd,
+			     method = "scaling")
+rs$pd.scaling <- pd.calib.s[[1]]
+#log-odds a
+pd.calib.a <- rs.calibration(rs = rs, 
+			     dr = "dr", 
+		 	     w = "no", 
+			     ct = ct, 
+			     min.pd = min.pd,
+			     method = "log.odds.a")
+rs$pd.log.a <- pd.calib.a[[1]]
+#log-odds ab
+pd.calib.ab <- rs.calibration(rs = rs, 
+			      dr = "dr", 
+		 	      w = "no", 
+			      ct = ct, 
+			      min.pd = min.pd,
+			      method = "log.odds.ab")
+rs$pd.log.ab <- pd.calib.ab[[1]]
 #checks
 rs
 sum(rs$pd.scaling * rs$no / sum(rs$no))

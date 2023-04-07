@@ -32,7 +32,7 @@ Changes:<br/>
 # PDtoolkit 1.0.0
 Changes:<br/>
 
-1. ```psi**``` value added to the output of ```psi``` function (for comparison with ```cv.chisq``` critical value)
+1. ```psi**``` value added to the output of ```psi``` function (for comparison with ```cv.zscore`` and ```cv.chisq``` critical value)
 2. Improvement of ```cat.bin``` output consistency for ```sc.merge``` option 
 3. Additional check of ```segment```argument in ```homogeneity``` function (has to be of length one)
 4. Function ```segment.vld``` parameterized with the new argument ```min.leaf```
@@ -58,3 +58,19 @@ Changes:<br/>
 
 1. ```print``` from within the functions (```stepMIV```, ```stepFWD```, ```stepRPC```, ```staged.blocks```, ```embedded.blocks```, ```ensemble.blocks```) replaced with ```messsage```
 2. Examples modified (```stepMIV```, ```boots.vld```, ```segment.vld```, ```scaled.score```, ```kfold.vld```, ```fairness.vld```, ```evrs```, ```staged.blocks```) to keep the execution time under 10s during check_win_release() 
+
+# PDtoolkit 1.1.0
+Changes:<br/>
+
+1. ```imp.outliers``` function did not replace identified outliers properly. Small adjustment made (```db[, rf.l] <- rf.imp``` have been added). 
+2. ```nzv``` - label of the second most frequent values was wrongly assigned. (```cc.lbl.2 = x.cc.lb1``` replaced by  ```cc.lbl.2 = x.cc.lb2```)
+3. ```rf.clustering``` - updated link for x2y metric
+4. improvement of trend check (```cc.dummy```) in stepwise regressions
+5. New functions:
+      + ```stepFWDr``` - stepwise regression for mixed risk factor types 
+      + ```stepRPCr``` - stepwise regression based on risk profile concept and mixed risk factor types
+6. New method available for ```staged.blocks```, ```embedded.blocks```, ```ensemble.blocks``` - "stepFWDr" & "stepRPCr"
+7. Examples modified (```staged.blocks```, ```embedded.blocks```, ```ensemble.blocks```, ```rf.clustering```, ```hhi```, ```evrs```) to decrease the execution time 
+during check_win_release() 
+8. ```stepFWD``` and ```stepRPC``` - additional check for ```dummy``` coding and ```check.start.model``` introduced
+9. ```rs.calibration``` output exteneded. Now, besides calibrated values it returns also parameters

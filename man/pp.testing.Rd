@@ -26,10 +26,11 @@ the rating grades as well as the test results.
 \description{
 \code{pp.testing} performs testing of predictive power of the PD rating model. This procedure should be applied
 on the level of the rating scale.
-Four tests are implemented: binomial, Jeffreys, z-score and Hosmer-Lemeshow test.
-Only Hosmer-Lemeshow test refers to complete rating scale, while the remaining three are implemented on the
-rating grade level. The null hypothesis for all tests is that observed default rate
-\eqn{\frac{n_b}{n_o}} is less or equal to the calibrated PD (\code{pdc}).
+Four tests are implemented: the binomial, Jeffreys, z-score and Hosmer-Lemeshow test.
+Only the Hosmer-Lemeshow test refers to complete rating scale, while the remaining three are implemented on the
+rating grade level. The null hypothesis for the binomial, Jeffreys, and z-score tests is that the observed default rate
+\eqn{\frac{n_b}{n_o}} is less or equal to the calibrated PD (\code{pdc}) while for the Hosmer-Lemeshow test is that
+the calibrated PD (\code{pdc}) is the true one.
 }
 \details{
 Due to the fact that test of predictive power is usually implemented on the application portfolio,
